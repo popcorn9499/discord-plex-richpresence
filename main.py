@@ -29,7 +29,8 @@ class Plex:
         print("Auth: "+ account.authenticationToken)
         self.conf["Plex_Token"] = account.authenticationToken
         fileIO.fileSave("config.json", self.conf)
-        plex = account.resource("whyNot").connect()
+        
+        self.connectPlex()
         print("logged in")
         listener = AlertListener(plex,alertCallback, alertError)
         listener.run()
@@ -38,6 +39,11 @@ class Plex:
             time.sleep(1)
             print("1")
     
+    def connectPlex(self):
+        try: #handle reconnecting since somethings it can't see my server?
+            self.plex = self.account.resource("whyNot").connect()
+        except Exception:
+            self.connectPlex()
     #Logins into the plex api
     #returns a MyPlexAccount obj or None if something goes wrong
     def login(self, password=None):
