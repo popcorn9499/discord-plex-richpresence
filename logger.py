@@ -32,7 +32,7 @@ class logs:
         self.logger = logging.getLogger(name)
         formatter = logging.Formatter('%(asctime)s [Thread/%(threadName)s] - %(name)s - %(levelname)s - %(message)s') #sets formatting for the console output
         terminal = logging.StreamHandler()
-        terminal.setLevel(logging.INFO)#sets the debug level
+        terminal.setLevel(logging.NOTSET)#sets the debug level
         terminal.setFormatter(formatter)
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(terminal) #adds the console handlerth
