@@ -74,9 +74,10 @@ class Plex:
             if (data["type"] == "playing" and "PlaySessionStateNotification" in data):
                 #print(data)
                 for session in data["PlaySessionStateNotification"]:
-                    ratingKey = session["ratingKey"]
-                    item = self.plex.fetchItem(ratingKey)
-                    print(item)
+                    ratingKey = session["key"]
+                    item: PlexPartialObject  = self.plex.fetchItem(ratingKey)
+                    print(item.section())
+                    print(item.title)
 
         
     def alertError(self,*args):
