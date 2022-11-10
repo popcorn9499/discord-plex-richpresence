@@ -16,9 +16,9 @@ import os
 
 class Plex:
     conf = {'Plex_User': 'username', 'Plex_Token': 'someToken'}
-    account = None #should be type MyPlexAccount
-    log = None #Logging object
-    plex: Optional[PlexServer] = None
+    account: MyPlexAccount = None #should be type MyPlexAccount
+    log: logging.RootLogger = None #Logging object
+    server: dict[str,PlexServer] = {}
     def __init__(self):
         self.log = logging.getLogger("Plex")
 
@@ -30,10 +30,10 @@ class Plex:
     
         self.conf["Plex_Token"] = self.account.authenticationToken
         fileIO.fileSave("config.json", self.conf)
-        
+        print("Connecting to plex")
         self.connectPlex()
         print("logged in")
-        listener = AlertListener(self.plex, self.alertCallback, self.alertError)
+        listener = AlertListener(self.server["whyNot"], self.alertCallback, self.alertError)
         listener.run()
 
         while(True):
@@ -42,7 +42,8 @@ class Plex:
     
     def connectPlex(self):
         try: #handle reconnecting since somethings it can't see my server?
-            self.plex = self.account.resource("whyNot").connect()
+            server = self.account.resource("whyNot").connect()
+            self.server["whyNot"] =  server
         except Exception:
             self.log.info("Retrying to find plex server")
             self.connectPlex()
@@ -75,7 +76,7 @@ class Plex:
                 #print(data)
                 for session in data["PlaySessionStateNotification"]:
                     ratingKey = session["key"]
-                    item: PlexPartialObject  = self.plex.fetchItem(ratingKey)
+                    item: PlexPartialObject  = self.server["whyNot"].fetchItem(ratingKey)
                     print(item.section())
                     print(item.title)
 
