@@ -20,6 +20,12 @@ class Plex:
     account: MyPlexAccount = None #should be type MyPlexAccount
     log: logger.logs = None #Logging object
     servers: dict[str,PlexServer] = {}
+    
+    #temp variable
+    lastSessionKey = None
+    lastRatingKey = None
+    lastState = None
+    
     def __init__(self):
         self.log = logger.logs("Plex")
         fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
@@ -75,9 +81,10 @@ class Plex:
     def isOwner(self,serverName):
         result = False
         try:
-            self.server[serverName].account()
+            self.servers[serverName].account()
             result = True
         except:
+            self.log.info("Not the owner")
             pass
         return result
     
@@ -88,10 +95,47 @@ class Plex:
             if (data["type"] == "playing" and "PlaySessionStateNotification" in data):
                 #print(data)
                 for session in data["PlaySessionStateNotification"]:
-                    ratingKey = session["key"]
-                    item: PlexPartialObject  = self.servers["whyNot"].fetchItem(ratingKey)
-                    print(item.section())
-                    print(item.title)
+                    key = session["key"]
+                    ratingKey = int(session["ratingKey"])
+                    viewOffset = int(session["viewOffset"]) #stored in ms
+                    state = session["state"]
+                    sessionKey = int(session["sessionKey"])
+                    
+                    sessionServer: PlexServer = None
+                    
+                    #handle disconnecting the rpc. handle a threaded timer potentially?
+                    
+                    
+                    if state == "stopped":
+                        return
+                    
+                    #handle getting the session from the servers
+                    
+                    #this should only be run if we are the owner of that server??
+                    for servername,server in self.servers.items(): #ensures we search every server for the actual server that the session is from
+                        self.log.logger.debug("Searching to find the server the session is from. and verify the session key")
+                        if self.isOwner(servername):
+                            x = server.account()
+                            print("HEYO")
+                            sessions: list[Playable] = server.sessions()
+                            for session in sessions: #interate through all the sessions on a given server
+                                self.log.logger.debug("{0} SessionKey: {1} Usernames: {2}".format(session,session.sessionKey,session.usernames))
+                                if session.sessionKey == sessionKey and sessionServer == None: #confirm we are looking at the session that fired the event
+                                    self.log.logger.debug("Session was found")
+                                    for sessionUsername in session.usernames: #search usernames to ensure its of the correct userprofile we want.
+                                        self.log.logger.info("SessionUser: {0} accountUser: {1}".format(sessionUsername, self.account.username))
+                                        if sessionUsername == self.account.username:
+                                            self.log.logger.info("Found username: {0} same as account user: {1}".format(sessionUsername, self.account.username))
+                                            sessionServer = server #store the correct name
+                    
+                    
+
+                    if (sessionServer != None):
+                    
+                        self.log.logger.info(data)
+                        item: PlexPartialObject  = sessionServer.fetchItem(key)
+                        print(item.section())
+                        print(item.title)
 
         
     def alertError(self,*args):
