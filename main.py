@@ -28,7 +28,6 @@ class Plex:
         
         self.account = self.login()
     
-        print("Auth: "+ self.account.authenticationToken)
         self.conf["Plex_Token"] = self.account.authenticationToken
         fileIO.fileSave("config.json", self.conf)
         
