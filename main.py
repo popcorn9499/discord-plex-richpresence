@@ -6,7 +6,7 @@ from typing import Optional
 
 import time
 import fileIO
-import logging
+import logger 
 import os
 
 
@@ -15,13 +15,13 @@ import os
 
 
 class Plex:
+    _productName = "Plex Media Server" #used to allow us to sort only by specific products
     conf = {'Plex_User': 'username', 'Plex_Token': 'someToken'}
     account: MyPlexAccount = None #should be type MyPlexAccount
-    log: logging.RootLogger = None #Logging object
-    server: dict[str,PlexServer] = {}
+    log: logger.logs = None #Logging object
+    servers: dict[str,PlexServer] = {}
     def __init__(self):
-        self.log = logging.getLogger("Plex")
-
+        self.log = logger.logs("Plex")
         fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
 
         self.conf = fileIO.fileLoad("config.json")
@@ -30,11 +30,12 @@ class Plex:
     
         self.conf["Plex_Token"] = self.account.authenticationToken
         fileIO.fileSave("config.json", self.conf)
-        print("Connecting to plex")
+        self.log.logger.info("Connecting to plex")
         self.connectPlex()
         print("logged in")
-        listener = AlertListener(self.server["whyNot"], self.alertCallback, self.alertError)
-        listener.run()
+        for server in self.servers:
+            listener = AlertListener(self.servers[server], self.alertCallback, self.alertError)
+            listener.run()
 
         while(True):
             time.sleep(1)
@@ -42,8 +43,11 @@ class Plex:
     
     def connectPlex(self):
         try: #handle reconnecting since somethings it can't see my server?
-            server = self.account.resource("whyNot").connect()
-            self.server["whyNot"] =  server
+            for resource in self.account.resources():
+                if resource.product == self._productName:
+                    self.log.logger.info("Connecting to " + resource.name)
+                    server: MyPlexAccount = resource.connect()
+                    self.servers[resource.name] = server
         except Exception:
             self.log.info("Retrying to find plex server")
             self.connectPlex()
@@ -68,6 +72,15 @@ class Plex:
         return account
     
     
+    def isOwner(self,serverName):
+        result = False
+        try:
+            self.server[serverName].account()
+            result = True
+        except:
+            pass
+        return result
+    
     ##all I really care about is playing and pausing
     #({'type': 'playing', 'size': 1, 'PlaySessionStateNotification': [{'sessionKey': '2', 'clientIdentifier': '88b4f7f6-7554-4338-8982-a044a3a7d010', 'guid': '', 'ratingKey': '147967', 'url': '', 'key': '/library/metadata/147967', 'viewOffset': 4910, 'playQueueItemID': 576940, 'playQueueID': 14462, 'state': 'paused'}]},)
     def alertCallback(self,*args):
@@ -76,7 +89,7 @@ class Plex:
                 #print(data)
                 for session in data["PlaySessionStateNotification"]:
                     ratingKey = session["key"]
-                    item: PlexPartialObject  = self.server["whyNot"].fetchItem(ratingKey)
+                    item: PlexPartialObject  = self.servers["whyNot"].fetchItem(ratingKey)
                     print(item.section())
                     print(item.title)
 
