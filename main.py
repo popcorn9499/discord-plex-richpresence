@@ -6,33 +6,30 @@ import logging
 import os
 
 
-def alertCallback(*args):
-    print(args)
-    
-def alertError(*args):
-    print(args)
+
 
 
 
 class Plex:
     conf = {'Plex_User': 'username', 'Plex_Token': 'someToken'}
-    
+    account = None #should be type MyPlexAccount
+    log = None #Logging object
     def __init__(self):
-        log = logging.getLogger("Plex")
+        self.log = logging.getLogger("Plex")
 
-        fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",log)
+        fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
 
         self.conf = fileIO.fileLoad("config.json")
         
-        account = self.login()
+        self.account = self.login()
     
-        print("Auth: "+ account.authenticationToken)
-        self.conf["Plex_Token"] = account.authenticationToken
+        print("Auth: "+ self.account.authenticationToken)
+        self.conf["Plex_Token"] = self.account.authenticationToken
         fileIO.fileSave("config.json", self.conf)
         
         self.connectPlex()
         print("logged in")
-        listener = AlertListener(plex,alertCallback, alertError)
+        listener = AlertListener(self.plex, self.alertCallback, self.alertError)
         listener.run()
 
         while(True):
@@ -44,6 +41,7 @@ class Plex:
             self.plex = self.account.resource("whyNot").connect()
         except Exception:
             self.connectPlex()
+    
     #Logins into the plex api
     #returns a MyPlexAccount obj or None if something goes wrong
     def login(self, password=None):
@@ -64,5 +62,14 @@ class Plex:
         return account
     
     
+    ##all I really care about is playing and pausing
+    #({'type': 'playing', 'size': 1, 'PlaySessionStateNotification': [{'sessionKey': '2', 'clientIdentifier': '88b4f7f6-7554-4338-8982-a044a3a7d010', 'guid': '', 'ratingKey': '147967', 'url': '', 'key': '/library/metadata/147967', 'viewOffset': 4910, 'playQueueItemID': 576940, 'playQueueID': 14462, 'state': 'paused'}]},)
+    def alertCallback(self,*args):
+        if (args["type"] == "playing"):
+            print(args)
+        
+    def alertError(self,*args):
+        print(args)
+            
     
 x = Plex()
