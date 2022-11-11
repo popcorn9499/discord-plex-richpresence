@@ -128,6 +128,10 @@ class Plex:
                     artUrl = None
                     posterUrl = None
                     thumbUrl = None
+                    title = None #title of the track of music
+                    parentTitle = None #usually album for music
+                    grandParentTitle = None #sometimes artist?
+                    originalTitle = None
                     #handle disconnecting the rpc. handle a threaded timer potentially?
                     
                     
@@ -147,6 +151,10 @@ class Plex:
                         print(item)
                         print(item.section())
                         print(item.title)
+                        title = item.title
+                        grandParentTitle = item.grandparentTitle
+                        originalTitle = item.originalTitle
+                        parentTitle = item.parentTitle
                         artUrl = item.artUrl
                         posterUrl = item.posterUrl
                         thumbUrl = item.thumbUrl
