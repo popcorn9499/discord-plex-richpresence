@@ -43,8 +43,7 @@ class Plex:
         
         self.account = self.login()
     
-        self.conf["Plex_Token"] = self.account.authenticationToken
-        fileIO.fileSave("config.json", self.conf)
+        
         
         self.discord = discordRPC(self.conf["discordClientID"])
         
@@ -79,6 +78,8 @@ class Plex:
                 account = MyPlexAccount(token=self.conf["Plex_Token"]) 
             else:
                 account = MyPlexAccount(self.conf["Plex_User"], password)
+                self.conf["Plex_Token"] = self.account.authenticationToken #get the token and save it to file
+                fileIO.fileSave("config.json", self.conf)
         except Exception:
             print("Please provide the username for your plex account or type QUIT and edit config.json directly providing the required fields")
             self.conf["Plex_User"] = input("")
