@@ -32,6 +32,7 @@ class discordRPC:
                 self.connect()
                 
     def close(self):
+        self.rpc.clear()
         self.rpc.close()
 
 class ConnectionErrorDiscordRPC(Exception):
