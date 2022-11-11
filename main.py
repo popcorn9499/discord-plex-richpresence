@@ -30,6 +30,12 @@ class Plex:
     timeoutInterval: int = 30
     playPause = {"playing": "play-circle", "paused": "pause-circle"}
     
+    #limits the amount of time the presence stays up when paused
+    presenceCount: int = 0
+    presenceCountMax: int = 10
+    
+    
+    
     def __init__(self):
         self.log = logger.logs("Plex")
         fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
@@ -167,10 +173,14 @@ class Plex:
                             self.timeoutTimer.cancel()
                             self.timeoutTimer = None
                         
-                        if self.lastState == state:
+                        if self.lastState == state and self.presenceCount < self.presenceCountMax:
+                            if state == "paused":
+                                self.presenceCount += 1
+                                self.log.logger.info("Presence Paused")
                             self.timeoutTimer = threading.Timer(self.timeoutInterval, self.handleTimeout)
                             self.timeoutTimer.start()
                         else:
+                            self.presenceCount = 0
                             if state=="stopped":
                                 self.discord.close()
 
