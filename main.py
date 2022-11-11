@@ -182,7 +182,7 @@ class Plex:
                         elif state == "playing":
                             self.presenceCount = 0
                         else:
-                            if state=="stopped":
+                            if state=="stopped" or self.presenceCount >= self.presenceCountMax:
                                 self.discord.close()
 
                     if (sessionServer != None and self.presenceCount < self.presenceCountMax):
