@@ -164,7 +164,7 @@ class Plex:
                             posterUrl = item.posterUrl
                             thumbUrl = item.thumbUrl
                             startTime = time.time()
-                            endTime = time.time() + (item.duration - viewOffset)
+                            endTime = time.time() + ((item.duration - viewOffset)/1000)
                             stateText = f"{originalTitle or grandParentTitle} - {parentTitle} {item.year}"
                             self.discord.setPresence(details=title, state=stateText, largeText="Listening to music", small_image="play-circle", small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
                             self.discord.setPresence(details=title, state=stateText, large_text="Listening to music", small_image="play-circle", small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
