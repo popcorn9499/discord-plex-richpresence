@@ -41,15 +41,11 @@ class Plex:
 
         self.conf = fileIO.fileLoad("config.json")
         
-        self.account = self.login()
-    
-        
-        
         self.discord = discordRPC(self.conf["discordClientID"])
         
-        self.log.logger.info("Connecting to plex")
+        
         self.connectPlex()
-        print("logged in")
+        
         for server in self.servers:
             listener = AlertListener(self.servers[server], self.alertCallback, self.alertError)
             listener.run()
@@ -59,12 +55,15 @@ class Plex:
             print("1")
     
     def connectPlex(self):
+        self.account = self.login()
+        self.log.logger.info("Connecting to plex")
         try: #handle reconnecting since somethings it can't see my server?
             for resource in self.account.resources():
                 if resource.product == self._productName:
                     self.log.logger.info("Connecting to " + resource.name)
                     server: MyPlexAccount = resource.connect()
                     self.servers[resource.name] = server
+            self.log.logger.info("logged in")
         except Exception:
             self.log.info("Retrying to find plex server")
             self.connectPlex()
