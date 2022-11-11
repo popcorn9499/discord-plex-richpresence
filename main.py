@@ -8,6 +8,7 @@ import time
 import fileIO
 import logger 
 import os
+import threading
 
 from discordRPC import discordRPC
 
@@ -25,6 +26,12 @@ class Plex:
     lastSessionKey = None
     lastRatingKey = None
     lastState = None
+    
+    timeoutTimer: threading.Timer = None
+    plexConnectionTimeoutTimer: threading.Timer = None
+    plexConnectionTimeoutInterval: int = 60
+    timeoutInterval: int = 30
+    
     
     playPause = {"playing": "play-circle", "paused": "pause-circle"}
     
@@ -116,6 +123,13 @@ class Plex:
         print("Returning")
         return sessionServer
     
+    def handleTimeout(self):
+        self.log.logger.info("Closing discord rpc as we havent needed it for awhile")
+        self.lastState, self.lastSessionKey, self.lastRatingKey = "", 0, 0
+        self.discord.close()
+        self.timeoutTimer.cacel()
+        self.timeoutTimer = None
+    
     ##all I really care about is playing and pausing
     #({'type': 'playing', 'size': 1, 'PlaySessionStateNotification': [{'sessionKey': '2', 'clientIdentifier': '88b4f7f6-7554-4338-8982-a044a3a7d010', 'guid': '', 'ratingKey': '147967', 'url': '', 'key': '/library/metadata/147967', 'viewOffset': 4910, 'playQueueItemID': 576940, 'playQueueID': 14462, 'state': 'paused'}]},)
     def alertCallback(self,*args):
@@ -148,6 +162,20 @@ class Plex:
                     #this should only be run if we are the owner of that server??
                     sessionServer = self._getSessionServer(sessionKey)
                     
+                    
+                    #handle a timeout to remove the rpc connection/clear it
+                    if self.lastSessionKey == sessionKey and self.lastRatingKey == ratingKey:
+                        if self.timeoutTimer:
+                            self.timeoutTimer.cancel()
+                            self.timeoutTimer = None
+                        
+                        if self.lastState == state:
+                            self.timeoutTimer = threading.Timer(self.timeoutInterval, self.handleTimeout)
+                            self.timeoutTimer.start()
+                        else:
+                            if state=="stopped":
+                                self.discord.close()
+                    
                     print("IM HEREEE")
 
                     if (sessionServer != None):
@@ -156,6 +184,10 @@ class Plex:
                         print(item)
                         print(item.section())
                         print(item.title)
+                        
+                        self.lastSessionKey = sessionKey
+                        self.lastRatingKey = ratingKey
+                        self.lastState = state
                         
                         if item.type=="track":
                             title = item.title
