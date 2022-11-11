@@ -26,6 +26,8 @@ class Plex:
     lastRatingKey = None
     lastState = None
     
+    playPause = {"playing": "play-circle", "paused": "pause-circle"}
+    
     def __init__(self):
         self.log = logger.logs("Plex")
         fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
@@ -167,7 +169,7 @@ class Plex:
                             endTime = time.time() + ((item.duration - viewOffset)/1000)
                             stateText = f"{originalTitle or grandParentTitle} - {parentTitle} {item.year}"
                             print("GOING TO PRESENCE")
-                            self.discord.setPresence(details=title, state=stateText, large_text="Listening to music", small_image="play-circle", small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
+                            self.discord.setPresence(details=title, state=stateText, large_text="Listening to music", small_image=self.playPause[state], small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
                             print("PRESENCE DONE")
                     print("END")
 
