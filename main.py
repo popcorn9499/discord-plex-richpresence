@@ -64,6 +64,8 @@ class Plex:
                     server: MyPlexAccount = resource.connect()
                     self.servers[resource.name] = server
             self.log.logger.info("logged in")
+            self.plexConnectionTimeoutTimer = threading.Timer(self.plexConnectionTimeoutInterval, self.connectionHandler)
+            self.plexConnectionTimeoutTimer.start()
         except Exception:
             self.log.info("Retrying to find plex server")
             self.connectPlex()
@@ -122,6 +124,18 @@ class Plex:
                                 #break
         print("Returning")
         return sessionServer
+    
+    def connectionHandler(self):
+        try:
+            for servername,server in self.servers.items():
+                assert server
+                self.logger.debug("Connection {0} worked".format(servername))
+        except Exception as e:
+            self.log.logger.error("We lost connection to plex reason {0}".format(e))
+            self.connectPlex()
+        else:
+            self.plexConnectionTimeoutTimer = None
+        
     
     def handleTimeout(self):
         self.log.logger.info("Closing discord rpc as we havent needed it for awhile")
