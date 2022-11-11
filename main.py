@@ -125,7 +125,9 @@ class Plex:
                     sessionKey = int(session["sessionKey"])
                     
                     sessionServer: PlexServer = None
-                    
+                    artUrl = None
+                    posterUrl = None
+                    thumbUrl = None
                     #handle disconnecting the rpc. handle a threaded timer potentially?
                     
                     
@@ -142,8 +144,12 @@ class Plex:
                     if (sessionServer != None):
                         self.log.logger.info(data)
                         item: PlexPartialObject  = sessionServer.fetchItem(key)
+                        print(item)
                         print(item.section())
                         print(item.title)
+                        artUrl = item.artUrl
+                        posterUrl = item.posterUrl
+                        thumbUrl = item.thumbUrl
                     print("END")
 
         
