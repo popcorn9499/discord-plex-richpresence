@@ -9,7 +9,7 @@ import fileIO
 import logger 
 import os
 
-
+from discordRPC import discordRPC
 
 
 
@@ -36,6 +36,9 @@ class Plex:
     
         self.conf["Plex_Token"] = self.account.authenticationToken
         fileIO.fileSave("config.json", self.conf)
+        
+        self.discord = discordRPC(self.conf["discordClientID"])
+        
         self.log.logger.info("Connecting to plex")
         self.connectPlex()
         print("logged in")
@@ -151,13 +154,19 @@ class Plex:
                         print(item)
                         print(item.section())
                         print(item.title)
-                        title = item.title
-                        grandParentTitle = item.grandparentTitle
-                        originalTitle = item.originalTitle
-                        parentTitle = item.parentTitle
-                        artUrl = item.artUrl
-                        posterUrl = item.posterUrl
-                        thumbUrl = item.thumbUrl
+                        
+                        if item.type=="track":
+                            title = item.title
+                            grandParentTitle = item.grandparentTitle
+                            originalTitle = item.originalTitle
+                            parentTitle = item.parentTitle
+                            artUrl = item.artUrl
+                            posterUrl = item.posterUrl
+                            thumbUrl = item.thumbUrl
+                            startTime = time.time()
+                            endTime = time.time() + (item.duration - viewOffset)
+                            stateText = f"{originalTitle or grandParentTitle} - {parentTitle} {item.year}"
+                            self.discord.setPresence(details=title, state=stateText, largeText="Listening to music", small_image="play-circle", small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
                     print("END")
 
         
