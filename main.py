@@ -129,7 +129,7 @@ class Plex:
         try:
             for servername,server in self.servers.items():
                 assert server
-                self.logger.debug("Connection {0} worked".format(servername))
+                self.log.logger.debug("Connection {0} worked".format(servername))
         except Exception as e:
             self.log.logger.error("We lost connection to plex reason {0}".format(e))
             self.connectPlex()
@@ -145,7 +145,7 @@ class Plex:
         self.timeoutTimer = None
     
     ##all I really care about is playing and pausing
-    #({'type': 'playing', 'size': 1, 'PlaySessionStateNotification': [{'sessionKey': '2', 'clientIdentifier': '88b4f7f6-7554-4338-8982-a044a3a7d010', 'guid': '', 'ratingKey': '147967', 'url': '', 'key': '/library/metadata/147967', 'viewOffset': 4910, 'playQueueItemID': 576940, 'playQueueID': 14462, 'state': 'paused'}]},)
+
     def alertCallback(self,*args):
         for data in args:
             if (data["type"] == "playing" and "PlaySessionStateNotification" in data):
@@ -165,17 +165,13 @@ class Plex:
                     parentTitle = None #usually album for music
                     grandParentTitle = None #sometimes artist?
                     originalTitle = None
-                    #handle disconnecting the rpc. handle a threaded timer potentially?
-                    
                     
                     if state == "stopped":
                         return
                     
-                    #handle getting the session from the servers
                     
                     #this should only be run if we are the owner of that server??
                     sessionServer = self._getSessionServer(sessionKey)
-                    
                     
                     #handle a timeout to remove the rpc connection/clear it
                     if self.lastSessionKey == sessionKey and self.lastRatingKey == ratingKey:
@@ -189,8 +185,6 @@ class Plex:
                         else:
                             if state=="stopped":
                                 self.discord.close()
-                    
-                    print("IM HEREEE")
 
                     if (sessionServer != None):
                         self.log.logger.info(data)
@@ -214,10 +208,9 @@ class Plex:
                             startTime = time.time()
                             endTime = time.time() + ((item.duration - viewOffset)/1000)
                             stateText = f"{originalTitle or grandParentTitle} - {parentTitle} {item.year}"
-                            print("GOING TO PRESENCE")
+                            self.log.logger.info("GOING TO PRESENCE")
                             self.discord.setPresence(details=title, state=stateText, large_text="Listening to music", small_image=self.playPause[state], small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
-                            print("PRESENCE DONE")
-                    print("END")
+                            self.log.logger.info("PRESENCE DONE")
 
         
     def alertError(self,*args):
