@@ -19,6 +19,7 @@ class discordRPC:
             self.presenceCleared = False
         except:
             self.connect()
+            self.setPresence(self,state=state,details=details, large_image=large_image, small_image=small_image, startTime=startTime, endTime=endTime)
             
     def clear(self):
         if not self.presenceCleared:
