@@ -12,9 +12,6 @@ import threading
 
 from discordRPC import discordRPC
 
-
-
-
 class Plex:
     _productName = "Plex Media Server" #used to allow us to sort only by specific products
     conf = {'Plex_User': 'username', 'Plex_Token': 'someToken'}
@@ -31,25 +28,17 @@ class Plex:
     plexConnectionTimeoutTimer: threading.Timer = None
     plexConnectionTimeoutInterval: int = 60
     timeoutInterval: int = 30
-    
-    
     playPause = {"playing": "play-circle", "paused": "pause-circle"}
     
     def __init__(self):
         self.log = logger.logs("Plex")
         fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
-
         self.conf = fileIO.fileLoad("config.json")
-        
         self.discord = discordRPC(self.conf["discordClientID"])
-        
-        
         self.connectPlex()
-        
         for server in self.servers:
             listener = AlertListener(self.servers[server], self.alertCallback, self.alertError)
             listener.run()
-
         while(True):
             time.sleep(1)
             print("1")
