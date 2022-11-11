@@ -127,7 +127,7 @@ class Plex:
         self.log.logger.info("Closing discord rpc as we havent needed it for awhile")
         self.lastState, self.lastSessionKey, self.lastRatingKey = "", 0, 0
         self.discord.close()
-        self.timeoutTimer.cacel()
+        self.timeoutTimer.cancel()
         self.timeoutTimer = None
     
     ##all I really care about is playing and pausing
