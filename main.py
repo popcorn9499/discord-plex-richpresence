@@ -169,7 +169,6 @@ class Plex:
                     if state == "stopped":
                         return
                     
-                    
                     #this should only be run if we are the owner of that server??
                     sessionServer = self._getSessionServer(sessionKey)
                     
@@ -211,10 +210,8 @@ class Plex:
                             self.log.logger.info("GOING TO PRESENCE")
                             self.discord.setPresence(details=title, state=stateText, large_text="Listening to music", small_image=self.playPause[state], small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
                             self.log.logger.info("PRESENCE DONE")
-
         
     def alertError(self,*args):
         print(args)
-            
     
 x = Plex()
