@@ -174,17 +174,18 @@ class Plex:
                             self.timeoutTimer = None
                         
                         if self.lastState == state and self.presenceCount < self.presenceCountMax:
-                            if state == "paused":
+                            if state == "paused": #handle limiting the length of time the presence stays up
                                 self.presenceCount += 1
                                 self.log.logger.info("Presence Paused")
                             self.timeoutTimer = threading.Timer(self.timeoutInterval, self.handleTimeout)
                             self.timeoutTimer.start()
-                        else:
+                        elif state == "playing":
                             self.presenceCount = 0
+                        else:
                             if state=="stopped":
                                 self.discord.close()
 
-                    if (sessionServer != None):
+                    if (sessionServer != None and self.presenceCount < self.presenceCountMax):
                         self.log.logger.info(data)
                         item: PlexPartialObject  = sessionServer.fetchItem(key)
                         print(item)
