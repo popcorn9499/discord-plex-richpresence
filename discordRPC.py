@@ -28,14 +28,6 @@ class discordRPC:
             except:
                 self.connect()
                 
-class NoStatus():
-    pass
-
-class NoSong(Exception):
-    pass
-
-class ConnectionErrorMPD(Exception):
-    pass
 
 class ConnectionErrorDiscordRPC(Exception):
     pass
