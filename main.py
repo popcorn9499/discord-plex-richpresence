@@ -77,11 +77,11 @@ class Plex:
                 self.conf["Plex_Token"] = self.account.authenticationToken #get the token and save it to file
                 fileIO.fileSave("config.json", self.conf)
         except Exception:
-            print("Please provide the username for your plex account or type QUIT and edit config.json directly providing the required fields")
+            self.log.logger.info("Please provide the username for your plex account or type QUIT and edit config.json directly providing the required fields")
             self.conf["Plex_User"] = input("")
             if (self.conf["Plex_User"] == "QUIT"):
                 exit()
-            print("Please provide the password for your plex account")
+            self.log.logger.info("Please provide the password for your plex account")
             password = input("")
             account = self.login(password=password)
         return account
@@ -102,10 +102,8 @@ class Plex:
         for servername,server in self.servers.items(): #ensures we search every server for the actual server that the session is from
             self.log.logger.info("Searching {0} to find the server the session is from. and verify the session key".format(servername))
             if self.isOwner(servername) and sessionServer == None:
-                if servername == "monka":
-                    print("NOT OWNERRR")
                 x = server.account()
-                print("HEYO")
+                self.log.logger.info("HEYO")
                 sessions: list[Playable] = server.sessions()
                 for session in sessions: #interate through all the sessions on a given server
                     self.log.logger.info("{0} SessionKey: {1} Usernames: {2}".format(session,session.sessionKey,session.usernames))
@@ -117,7 +115,7 @@ class Plex:
                                 self.log.logger.info("Found username: {0} same as account user: {1}".format(sessionUsername, self.account.username))
                                 sessionServer = server #store the correct name
                                 #break
-        print("Returning")
+        self.log.logger.info("Returning")
         return sessionServer
     
     def connectionHandler(self):

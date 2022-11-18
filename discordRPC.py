@@ -1,21 +1,27 @@
 from pypresence import Presence
+import logger 
 
 class discordRPC:
+    log: logger.logs = None 
+    
     def __init__(self,client_id):
+        self.log = logger.logs("Discord RPC")
         self.client_id = client_id
         self.rpc = Presence(self.client_id)
         self.presenceCleared = True
-        print("LAUNCHING PRESENCE")
+        self.log.logger.info("LAUNCHING PRESENCE")
         self.connect()
 
     def connect(self):
         try:
+            self.log.logger.info("Attempting presence reconnection")
             self.rpc.connect() 
         except:
+            self.log.logger.info("Reconnection error")
             ConnectionErrorDiscordRPC()
 
     def setPresence(self,state=None,details=None,large_text=None,large_image=None,small_text=None,small_image=None,startTime=None,endTime=None):
-        print("Setting presence")
+        self.log.logger.info("Setting presence")
         try:
             self.rpc.update(state=state,details=details,large_text=large_text,large_image=large_image,small_text=small_text,small_image=small_image,start=startTime,end=endTime)
             self.presenceCleared = False
@@ -25,6 +31,7 @@ class discordRPC:
             
     def clear(self):
         if not self.presenceCleared:
+            self.log.logger.info("Clearing presence")
             try:
                 self.rpc.clear()
                 self.presenceCleared = True
@@ -32,6 +39,7 @@ class discordRPC:
                 self.connect()
                 
     def close(self):
+        self.log.logger.info("Closing presence")
         self.rpc.clear()
         self.rpc.close()
 
