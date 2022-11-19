@@ -3,6 +3,7 @@ import logger
 
 class discordRPC:
     log: logger.logs = None 
+    connected: bool = False
     
     def __init__(self,client_id):
         self.log = logger.logs("Discord RPC")
@@ -11,11 +12,14 @@ class discordRPC:
         self.presenceCleared = True
         self.log.logger.info("LAUNCHING PRESENCE")
         self.connect()
+        self.connected=True
 
     def connect(self):
         try:
             self.log.logger.info("Attempting presence reconnection")
-            self.rpc.connect() 
+            if (not self.connected):
+                self.rpc.connect()
+                sel.connected = True 
         except:
             self.log.logger.info("Reconnection error")
             ConnectionErrorDiscordRPC()
@@ -23,6 +27,7 @@ class discordRPC:
     def setPresence(self,state=None,details=None,large_text=None,large_image=None,small_text=None,small_image=None,startTime=None,endTime=None):
         self.log.logger.info("Setting presence")
         try:
+            self.connect()
             self.rpc.update(state=state,details=details,large_text=large_text,large_image=large_image,small_text=small_text,small_image=small_image,start=startTime,end=endTime)
             self.presenceCleared = False
         except:
