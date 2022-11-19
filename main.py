@@ -32,7 +32,7 @@ class Plex:
     
     #limits the amount of time the presence stays up when paused
     presenceCount: int = 0
-    presenceCountMax: int = 10
+    presenceCountMax: int = 1
     
     
     
