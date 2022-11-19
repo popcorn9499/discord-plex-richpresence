@@ -45,9 +45,10 @@ class discordRPC:
                 
     def close(self):
         self.log.logger.info("Closing presence")
-        self.rpc.clear()
-        self.rpc.close()
-        self.connected=False
+        if (self.connected):
+            self.rpc.clear()
+            self.rpc.close()
+            self.connected=False
 
 class ConnectionErrorDiscordRPC(Exception):
     pass
