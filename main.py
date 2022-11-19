@@ -178,7 +178,7 @@ class Plex:
                             self.timeoutTimer = threading.Timer(self.timeoutInterval, self.handleTimeout)
                             self.timeoutTimer.start()
                         elif state == "playing":
-                            self.log.logger("state became playing again")
+                            self.log.logger.info("state became playing again")
                             self.presenceCount = 0
                         else:
                             if state=="stopped" or self.presenceCount >= self.presenceCountMax:
