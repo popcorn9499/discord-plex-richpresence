@@ -185,6 +185,11 @@ class Plex:
                                 self.discord.close()
 
                     self.log.logger.info("Presence count {0}".format(self.presenceCount))
+                    if (sessionServer != None):
+                        self.lastSessionKey = sessionKey
+                        self.lastRatingKey = ratingKey
+                        self.lastState = state
+                        
                     if (sessionServer != None and self.presenceCount < self.presenceCountMax):
                         self.log.logger.info(data)
                         item: PlexPartialObject  = sessionServer.fetchItem(key)
@@ -192,9 +197,7 @@ class Plex:
                         print(item.section())
                         print(item.title)
                         
-                        self.lastSessionKey = sessionKey
-                        self.lastRatingKey = ratingKey
-                        self.lastState = state
+                        
                         
                         if item.type=="track":
                             title = item.title
