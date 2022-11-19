@@ -100,19 +100,19 @@ class Plex:
     def _getSessionServer(self,sessionKey: int):
         sessionServer = None
         for servername,server in self.servers.items(): #ensures we search every server for the actual server that the session is from
-            self.log.logger.info("Searching {0} to find the server the session is from. and verify the session key".format(servername))
+            self.log.logger.debug("Searching {0} to find the server the session is from. and verify the session key".format(servername))
             if self.isOwner(servername) and sessionServer == None:
                 x = server.account()
                 self.log.logger.info("HEYO")
                 sessions: list[Playable] = server.sessions()
                 for session in sessions: #interate through all the sessions on a given server
-                    self.log.logger.info("{0} SessionKey: {1} Usernames: {2}".format(session,session.sessionKey,session.usernames))
+                    self.log.logger.debug("{0} SessionKey: {1} Usernames: {2}".format(session,session.sessionKey,session.usernames))
                     if session.sessionKey == sessionKey and sessionServer == None: #confirm we are looking at the session that fired the event
                         self.log.logger.debug("Session was found")
                         for sessionUsername in session.usernames: #search usernames to ensure its of the correct userprofile we want.
-                            self.log.logger.info("SessionUser: {0} accountUser: {1}".format(sessionUsername, self.account.username))
+                            self.log.logger.debug("SessionUser: {0} accountUser: {1}".format(sessionUsername, self.account.username))
                             if sessionUsername == self.account.username:
-                                self.log.logger.info("Found username: {0} same as account user: {1}".format(sessionUsername, self.account.username))
+                                self.log.logger.debug("Found username: {0} same as account user: {1}".format(sessionUsername, self.account.username))
                                 sessionServer = server #store the correct name
                                 #break
         self.log.logger.info("Returning")
