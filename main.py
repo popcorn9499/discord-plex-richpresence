@@ -184,7 +184,7 @@ class Plex:
                             if state=="stopped" or self.presenceCount >= self.presenceCountMax:
                                 self.discord.close()
 
-                    self.log.logger("Presence count {0}".format(self.presenceCount))
+                    self.log.logger.info("Presence count {0}".format(self.presenceCount))
                     if (sessionServer != None and self.presenceCount < self.presenceCountMax):
                         self.log.logger.info(data)
                         item: PlexPartialObject  = sessionServer.fetchItem(key)
