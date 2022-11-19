@@ -19,7 +19,7 @@ class discordRPC:
             self.log.logger.info("Attempting presence reconnection")
             if (not self.connected):
                 self.rpc.connect()
-                sel.connected = True 
+                self.connected = True 
         except:
             self.log.logger.info("Reconnection error")
             ConnectionErrorDiscordRPC()
@@ -47,6 +47,7 @@ class discordRPC:
         self.log.logger.info("Closing presence")
         self.rpc.clear()
         self.rpc.close()
+        self.connected=False
 
 class ConnectionErrorDiscordRPC(Exception):
     pass
