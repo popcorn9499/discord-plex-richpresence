@@ -141,6 +141,13 @@ class Plex:
         self.timeoutTimer.cancel()
         self.timeoutTimer = None
     
+    def resetTimeout(self):
+        if self.timeoutTimer:
+            self.timeoutTimer.cancel()
+            self.timeoutTimer = None
+        self.timeoutTimer = threading.Timer(self.timeoutInterval, self.handleTimeout)
+        self.timeoutTimer.start()
+    
     ##all I really care about is playing and pausing
 
     def alertCallback(self,*args):
@@ -171,16 +178,14 @@ class Plex:
                     
                     #handle a timeout to remove the rpc connection/clear it
                     if self.lastSessionKey == sessionKey and self.lastRatingKey == ratingKey:
-                        if self.timeoutTimer:
-                            self.timeoutTimer.cancel()
-                            self.timeoutTimer = None
-                        
                         if self.lastState == state and self.presenceCount < self.presenceCountMax:
+                            if self.timeoutTimer:
+                                self.timeoutTimer.cancel()
+                                self.timeoutTimer = None
                             if state == "paused": #handle limiting the length of time the presence stays up
                                 self.presenceCount += 1
                                 self.log.logger.info("Presence Paused")
-                            self.timeoutTimer = threading.Timer(self.timeoutInterval, self.handleTimeout)
-                            self.timeoutTimer.start()
+                            self.resetTimeout()
                         elif state == "playing":
                             self.log.logger.info("state became playing again")
                             self.presenceCount = 0
@@ -214,6 +219,7 @@ class Plex:
                             startTime = time.time()
                             endTime = time.time() + ((item.duration - viewOffset)/1000)
                             stateText = f"{originalTitle or grandParentTitle} - {parentTitle} {item.year}"
+                            self.resetTimeout()
                             self.log.logger.info("GOING TO PRESENCE")
                             self.discord.setPresence(details=title, state=stateText, large_text="Listening to music", small_image=self.playPause[state], small_text="play-circle", large_image=thumbUrl or "mpd", startTime=startTime, endTime=endTime)
                             self.log.logger.info("PRESENCE DONE")
