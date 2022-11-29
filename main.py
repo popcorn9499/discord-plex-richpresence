@@ -27,6 +27,7 @@ class Plex:
     timeoutTimer: threading.Timer = None
     plexConnectionTimeoutTimer: threading.Timer = None
     plexConnectionTimeoutInterval: int = 60
+    listeners: dict[str,AlertListener] = {}
     timeoutInterval: int = 30
     playPause = {"playing": "play-circle", "paused": "pause-circle"}
     
@@ -41,13 +42,16 @@ class Plex:
         fileIO.checkFile("example-conf{0}config.json".format(os.sep),"config.json","config.json",self.log)
         self.conf = fileIO.fileLoad("config.json")
         self.discord = discordRPC(self.conf["discordClientID"])
-        self.connectPlex()
-        for server in self.servers:
-            listener = AlertListener(self.servers[server], self.alertCallback, self.alertError)
-            listener.run()
+        self.launch()
         while(True):
             time.sleep(1)
             print("1")
+    
+    def launch(self):
+        self.connectPlex()
+        for server in self.servers:
+            self.listeners[server] = AlertListener(self.servers[server], self.alertCallback, self.alertError)
+            self.listeners[server].run()
     
     def connectPlex(self):
         self.account = self.login()
@@ -215,6 +219,12 @@ class Plex:
                             self.log.logger.info("PRESENCE DONE")
         
     def alertError(self,*args):
-        print(args)
+        self.log.logger.info(args)
+        # self.log.logger.info("Closing listeners")
+        # for listener in self.listeners: #close all open listeners
+        #     self.listeners[listener].close() #note that close has no error handling so stuff gets really kinda stupid...
+        self.log.logger.info("Reconnection attempt")        
+        self.launch()
+        
     
 x = Plex()
