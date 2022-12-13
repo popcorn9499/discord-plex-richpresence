@@ -24,8 +24,10 @@ class discordRPC:
             self.log.logger.info("Reconnection error")
             ConnectionErrorDiscordRPC()
 
-    def setPresence(self,state=None,details=None,large_text=None,large_image=None,small_text=None,small_image=None,startTime=None,endTime=None):
+    def setPresence(self,state=None,details="",large_text=None,large_image=None,small_text=None,small_image=None,startTime=None,endTime=None):
         self.log.logger.info("Setting presence")
+        if details == "": #handle preventing details from being empty string
+            details = "N/A"
         try:
             self.connect()
             self.rpc.update(state=state,details=details,large_text=large_text,large_image=large_image,small_text=small_text,small_image=small_image,start=startTime,end=endTime)
