@@ -32,7 +32,8 @@ class discordRPC:
             self.connect()
             self.rpc.update(state=state,details=details,large_text=large_text,large_image=large_image,small_text=small_text,small_image=small_image,start=startTime,end=endTime)
             self.presenceCleared = False
-        except:
+        except Exception as e:
+            print(e)
             self.connect()
             self.setPresence(self,state=state,details=details,large_text=large_text, large_image=large_image,small_text=small_text, small_image=small_image, startTime=startTime, endTime=endTime)
             
