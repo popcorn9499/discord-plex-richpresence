@@ -210,6 +210,8 @@ class Plex:
                         
                         if item.type=="track":
                             title = item.title
+                            if title == "": #handle when the title is non existent
+                                title = "No Title"
                             grandParentTitle = item.grandparentTitle
                             originalTitle = item.originalTitle
                             parentTitle = item.parentTitle
